@@ -1,0 +1,25 @@
+name: CD - Development
+on:
+  push:
+    branches: [ dev ]
+jobs:
+  cd-dev:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Render (Development)
+        env:
+          RENDER_DEPLOY_HOOK_DEV_URL: ${{ secrets.RENDER_DEPLOY_HOOK_DEV_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_DEV_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_DEV_URL is not set; skipping Render deployment."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_DEV_URL"
+
+      - name: Confirm Deployment
+        run: echo "Deployed to Development at $(date)"
